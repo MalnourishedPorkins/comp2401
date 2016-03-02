@@ -249,9 +249,12 @@ int findLabel(char *l, PgmType *pmg){
   return NOT_FOUND;
 }
 
+// Find operands with LABEL_NOT_FND after all user input and modifies the operand if a
+//   matching label can be found in the collection of stmts
 void resolveLabels(PgmType *pgm){
   int i;
   
+  // Operand 1 check
   for(i = 0; i < pgm->numStmts; i++){
     int index;
 
@@ -264,7 +267,21 @@ void resolveLabels(PgmType *pgm){
       else
 	operandNotUsed(&pgm->stmts[i].op1);
     }
+  }
+  
+  // Operand 2 check
+  for(i = 0; i < pgm->numStmts; i++){
+    int index;
 
+    if(pgm->stmts[i].op2.opType == LABEL_NOT_FND){
+
+      index = findLabel(pgm->stmts[i].op2.tmpLabel, pgm);
+
+      if(index != NOT_FOUND)
+	initOperandLabel(index, &pgm->stmts[i].op2);
+      else
+	operandNotUsed(&pgm->stmts[i].op2);
+    }
   }
 
 }
