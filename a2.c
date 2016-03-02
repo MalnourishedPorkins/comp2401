@@ -121,6 +121,31 @@ int main(){
       int index;
       scanf("%s", str);
       index = findLabel(str, &pgm);
+      //printf("index: %d label: %s\n", index, str);
+
+      OperandType opA, opB; // Initalize Operands for the statement
+      if(index != NOT_FOUND){
+	initOperandLabel(LABEL, index, &opA);
+	operandNotUsed(&opB);
+      } 
+      else{
+	operandLabelNotFnd(str, &opA);
+	operandNotUsed(&opB);
+      }
+      currentStmt.op1 = opA; currentStmt.op2 = opB; // Add operands to statement
+      pgm.stmts[pgm.numStmts] = currentStmt; // Add statement to program collection of stmts
+      pgm.numStmts++; // Increment stmts value inside program structure
+    }
+
+    // JUMP instruction condition
+    //-----------------------------
+    if(strcmp(str, "jump") == 0){
+      currentStmt.instr = JUMP;
+      strCounter++;
+
+      int index;
+      scanf("%s", str);
+      index = findLabel(str, &pgm);
       printf("index: %d label: %s\n", index, str);
 
       OperandType opA, opB; // Initalize Operands for the statement
@@ -136,8 +161,8 @@ int main(){
       pgm.stmts[pgm.numStmts] = currentStmt; // Add statement to program collection of stmts
       pgm.numStmts++; // Increment stmts value inside program structure
     }
-    
-    // TODO: jmore instructions, jump instructions, end instruction, resolve labels
+      
+    // TODO: end instruction, resolve labels
     
     strCounter++; // Counter
     if(strcmp(str, "end") == 0) // Exits while loop when 'end' is entered by the user
