@@ -161,8 +161,6 @@ int main(){
       pgm.stmts[pgm.numStmts] = currentStmt; // Add statement to program collection of stmts
       pgm.numStmts++; // Increment stmts value inside program structure
     }
-      
-    // TODO: resolve labels
     
     strCounter++; // Counter
     if(strcmp(str, "end") == 0){  // Exits while loop when 'end' is entered by the user
@@ -298,5 +296,4 @@ void resolveLabels(PgmType *pgm){
 	operandNotUsed(&pgm->stmts[i].op2);
     }
   }
-
 }
