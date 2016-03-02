@@ -24,8 +24,7 @@ int main(){
   int len;
   char colon;
   char str[MAX_STR]; // User input
-  char label[MAX_STR]; // Used to splice off colon on inputted labels
-  StmtType currentStmt;
+  StmtType currentStmt; strcpy(currentStmt.label, "");
   
   while(1){
     
@@ -34,8 +33,10 @@ int main(){
     colon = str[len-1]; // Stores the last character of each inputted str into colon
    
     if(colon == ':') {
+      char label[MAX_STR] = ""; // Used to splice off colon on inputted labels
       strncpy(label, str, len - 1); // Copies everything but the colon
       strcpy(currentStmt.label, label); // Applies label to currentStmt structure
+      //printf("stmtLabel: %s, Label: %s\n", currentStmt.label, label); 
       strCounter++;
       continue;
     }
@@ -146,7 +147,7 @@ int main(){
       int index;
       scanf("%s", str);
       index = findLabel(str, &pgm);
-      printf("index: %d label: %s\n", index, str);
+      // printf("index: %d label: %s\n", index, str);
 
       OperandType opA, opB; // Initalize Operands for the statement
       if(index != NOT_FOUND){
@@ -162,12 +163,20 @@ int main(){
       pgm.numStmts++; // Increment stmts value inside program structure
     }
       
-    // TODO: end instruction, resolve labels
+    // TODO: resolve labels
     
     strCounter++; // Counter
-    if(strcmp(str, "end") == 0) // Exits while loop when 'end' is entered by the user
-       break;
+    if(strcmp(str, "end") == 0){  // Exits while loop when 'end' is entered by the user
+      currentStmt.instr = END;
+      
+      OperandType opA, opB; // Initalize Operands for the statement
+      operandNotUsed(&opA); operandNotUsed(&opB);
 
+      currentStmt.op1 = opA; currentStmt.op2 = opB; // Add operands to statement
+      pgm.stmts[pgm.numStmts] = currentStmt; // Add statement to program collection of stmts
+      pgm.numStmts++; // Increment stmts value inside program structure
+      break;
+    }   
   }
 
   printPgm(&pgm);
