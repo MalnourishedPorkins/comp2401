@@ -10,12 +10,13 @@ void initPgm(PgmType*);
 void initStmt(char*, InstrCategory, OperandType, OperandType, StmtType*);
 void initOperand(OpCategory, int, int, char*, OperandType*);
 void initOperandVar(OpCategory, int, OperandType*);
-void initOperandLabel(OpCategory, int, OperandType*);
+void initOperandLabel(int, OperandType*);
 void operandNotUsed(OperandType*);
 void operandLabelNotFnd(char*, OperandType*);
 void initVar(char*, int, VarType*);
 int findVar(char*, PgmType*);
 int findLabel(char*, PgmType*);
+void resolveLabels(PgmType*);
 
 int main(){
   PgmType pgm;
@@ -36,7 +37,7 @@ int main(){
       char label[MAX_STR] = ""; // Used to splice off colon on inputted labels
       strncpy(label, str, len - 1); // Copies everything but the colon
       strcpy(currentStmt.label, label); // Applies label to currentStmt structure
-      //printf("stmtLabel: %s, Label: %s\n", currentStmt.label, label); 
+
       strCounter++;
       continue;
     }
@@ -93,7 +94,6 @@ int main(){
       int index1; int index2; char var1[MAX_STR]; char var2[MAX_STR];
       scanf("%s", str);
       strcpy(var1, str);
-      // printf("%s\n", var1);
 
       scanf("%s", str);
       strcpy(var2, str);
@@ -122,11 +122,10 @@ int main(){
       int index;
       scanf("%s", str);
       index = findLabel(str, &pgm);
-      //printf("index: %d label: %s\n", index, str);
 
       OperandType opA, opB; // Initalize Operands for the statement
       if(index != NOT_FOUND){
-	initOperandLabel(LABEL, index, &opA);
+	initOperandLabel(index, &opA);
 	operandNotUsed(&opB);
       } 
       else{
@@ -147,11 +146,10 @@ int main(){
       int index;
       scanf("%s", str);
       index = findLabel(str, &pgm);
-      // printf("index: %d label: %s\n", index, str);
 
       OperandType opA, opB; // Initalize Operands for the statement
       if(index != NOT_FOUND){
-	initOperandLabel(LABEL, index, &opA);
+	initOperandLabel(index, &opA);
 	operandNotUsed(&opB);
       } 
       else{
@@ -178,7 +176,8 @@ int main(){
       break;
     }   
   }
-
+  
+  resolveLabels(&pgm);
   printPgm(&pgm);
   return 0;
 }
@@ -207,8 +206,8 @@ void initOperandVar(OpCategory opT, int varIndex, OperandType *op){
   op->var = varIndex;
 }
 
-void initOperandLabel(OpCategory opT, int labelIndex, OperandType *op){
-  op->opType = opT;
+void initOperandLabel(int labelIndex, OperandType *op){
+  op->opType = LABEL;
   op->label = labelIndex;
 }
 
@@ -217,7 +216,6 @@ void operandNotUsed(OperandType *op){
 }
 
 void operandLabelNotFnd(char *label, OperandType *op){
-  //printf("inside! %s", label);
   op->opType = LABEL_NOT_FND;
   strcpy(op->tmpLabel, label);
 }
@@ -232,7 +230,6 @@ int findVar(char *n, PgmType *pmg){
   int i;
 
   for(i = 0; i < pmg->numVars; i++){
-    //printf("|%s == %s|\n", n, pmg->vars[i].name);
     
     if(strcmp(n, pmg->vars[i].name) == 0)
       return i;
@@ -245,10 +242,29 @@ int findLabel(char *l, PgmType *pmg){
   int i;
 
   for(i = 0; i < pmg->numStmts; i++){
-    //printf("|%s == %s|\n", n, pmg->stmts[i].label);
     
     if(strcmp(l, pmg->stmts[i].label) == 0)
       return i;
   }
   return NOT_FOUND;
+}
+
+void resolveLabels(PgmType *pgm){
+  int i;
+  
+  for(i = 0; i < pgm->numStmts; i++){
+    int index;
+
+    if(pgm->stmts[i].op1.opType == LABEL_NOT_FND){
+
+      index = findLabel(pgm->stmts[i].op1.tmpLabel, pgm);
+
+      if(index != NOT_FOUND)
+	initOperandLabel(index, &pgm->stmts[i].op1);
+      else
+	operandNotUsed(&pgm->stmts[i].op1);
+    }
+
+  }
+
 }
