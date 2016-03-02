@@ -108,7 +108,8 @@ int main(){
       pgm.stmts[pgm.numStmts] = currentStmt; // Add statement to program collection of stmts
       pgm.numStmts++; // Increment stmts value inside program structure
     }      
-  
+    
+    // TODO: jmore instructions, jump instructions, end instruction, resolve labels
     
     strCounter++; // Counter
     if(strcmp(str, "end") == 0) // Exits while loop when 'end' is entered by the user
