@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <string.h>
+#include "defs.h"
+
+#define MAX_STR      32
+#define MAX_ARR_SIZE 32
+
+int main(int argc, char *arg[]){
+  PgmType pgm;
+  int i = 0;
+  char str1[MAX_STR];
+  char str2[MAX_STR];
+  
+  /*
+  for(i=0; i<argc; i++) {
+    printf("Argument %d is %s\n", i, argv[i]);
+  }
+  */
+
+  while(1){
+    scanf("%s", str1);
+    printf("%d: %s \n", i, str1);
+    i++;
+    printf("\n");
+    
+    if(strcmp(str1, "end") == 0)
+       break;
+
+  }
+
+  
+  return 0;
+}
