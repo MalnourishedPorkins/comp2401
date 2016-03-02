@@ -1,4 +1,4 @@
-Program Authors: Matthew McMurray (100932815) and Abhinav Gurung (100
+Program Authors: Matthew McMurray (100932815) and Abhinav Kumar Gurung (100799827)
  
 Purpose: Read TASSLA program from the command line and store the program and its variables into the provided data structures.
 

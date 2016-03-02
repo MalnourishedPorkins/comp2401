@@ -6,10 +6,11 @@
 #define MAX_ARR_SIZE 32
 #define NOT_FOUND -1
 
+// Forward references and function prototypes
 void initPgm(PgmType*);
 void initStmt(char*, InstrCategory, OperandType, OperandType, StmtType*);
 void initOperand(OpCategory, int, int, char*, OperandType*);
-void initOperandVar(OpCategory, int, OperandType*);
+void initOperandVar(int, OperandType*);
 void initOperandLabel(int, OperandType*);
 void operandNotUsed(OperandType*);
 void operandLabelNotFnd(char*, OperandType*);
@@ -19,8 +20,8 @@ int findLabel(char*, PgmType*);
 void resolveLabels(PgmType*);
 
 int main(){
-  PgmType pgm;
-  initPgm(&pgm);
+  PgmType pgm; // PgmType instance that will store stmts collection and vars collection
+  initPgm(&pgm); // Initalizes pgm values
   int strCounter = 0;
   int len;
   char colon;
@@ -52,8 +53,8 @@ int main(){
       pgm.vars[pgm.numVars] = var; // Places var in pgm collection of variables
            
       OperandType opA, opB; // Initalize Operands for the statement
-      initOperandVar(VAR, pgm.numVars, &opA);
-      operandNotUsed(&opB);
+      initOperandVar(pgm.numVars, &opA); // Initalizes opA as a VAR operand 
+      operandNotUsed(&opB); // Initalizes opB as a NOT_USED operand
       pgm.numVars++; // Increment vars value inside program structure
 
       currentStmt.op1 = opA; currentStmt.op2 = opB; // Add operands to statement
@@ -67,13 +68,13 @@ int main(){
     if(strcmp(str, "print") == 0){
       currentStmt.instr = PRINT;
       strCounter++;
-      int index;
+      int index; // Value to store returning index from findVar function
       scanf("%s", str);
       
       index = findVar(str, &pgm);
       OperandType opA, opB; // Initalize Operands for the statement
       if(index != NOT_FOUND){
-	initOperandVar(VAR, index, &opA);
+	initOperandVar(index, &opA);
 	operandNotUsed(&opB);
       } 
       else{
@@ -100,9 +101,9 @@ int main(){
 
       index1 = findVar(var1, &pgm); index2 = findVar(var2, &pgm);
       OperandType opA, opB; // Initalize Operands for the statement
-      if(index1 != NOT_FOUND && index2 != NOT_FOUND){
-	initOperandVar(VAR, index1, &opA);
-	initOperandVar(VAR, index2, &opB);
+      if(index1 != NOT_FOUND && index2 != NOT_FOUND){ // If variables are found in vars collection
+	initOperandVar(index1, &opA);
+	initOperandVar(index2, &opB);
       } 
       else{
 	operandNotUsed(&opA);
@@ -177,16 +178,25 @@ int main(){
     }   
   }
   
-  resolveLabels(&pgm);
-  printPgm(&pgm);
+  resolveLabels(&pgm); // Resolves LABEL_NOT_FND operands
+  printPgm(&pgm);      // Prints stored information of TASSLA instructions entered 
   return 0;
 }
+
+/*
+-------------------------------------------------------------------------------------------------------
+HELPER FUNCTIONS
+-------------------------------------------------------------------------------------------------------
+*/
+
+// Initalizes PgmType
 void initPgm(PgmType *pgm){
   pgm->numStmts = 0;
   pgm->numVars = 0;
   pgm->flag = NOT_SET;
 }
 
+// Initalizes StmtType
 void initStmt(char *l, InstrCategory iCat, OperandType opA, OperandType opB, StmtType *stmt){
   strcpy(stmt->label, l);
   stmt->instr = iCat;
@@ -194,6 +204,7 @@ void initStmt(char *l, InstrCategory iCat, OperandType opA, OperandType opB, Stm
   stmt->op2 = opB;
 }
 
+// Initalizes OperandType
 void initOperand(OpCategory opT, int labelIndex, int varIndex, char *tmpLab, OperandType *op){
   op->opType = opT;
   op->label = labelIndex;
@@ -201,31 +212,36 @@ void initOperand(OpCategory opT, int labelIndex, int varIndex, char *tmpLab, Ope
   strcpy(op->tmpLabel, tmpLab);
 }
 
-void initOperandVar(OpCategory opT, int varIndex, OperandType *op){
-  op->opType = opT;
+// Initalizes OperandType as a variable
+void initOperandVar(int varIndex, OperandType *op){
+  op->opType = VAR;
   op->var = varIndex;
 }
 
+// Initalizes OperandType as a label
 void initOperandLabel(int labelIndex, OperandType *op){
   op->opType = LABEL;
   op->label = labelIndex;
 }
 
+// Initalizes OperandType as not used
 void operandNotUsed(OperandType *op){
   op->opType = NOT_USED;
 }
 
+// Initalizes OperandType as a label not found
 void operandLabelNotFnd(char *label, OperandType *op){
   op->opType = LABEL_NOT_FND;
   strcpy(op->tmpLabel, label);
 }
 
+// Initalizes VarType
 void initVar(char *n, int v, VarType *var){
   strcpy(var->name, n);
   var->value = v;
 }
 
-// Returns index of variable if found
+// Returns index of variable if found, other returns NOT_FOUND value (-1)
 int findVar(char *n, PgmType *pmg){
   int i;
 
@@ -237,7 +253,7 @@ int findVar(char *n, PgmType *pmg){
   return NOT_FOUND;
 }
 
-// Returns index of stmt using inputted label if found
+// Returns index of stmt inside the collection of stmts using inputted label if found, otherwise returns NOT_FOUND value (-1)
 int findLabel(char *l, PgmType *pmg){
   int i;
 
@@ -249,8 +265,7 @@ int findLabel(char *l, PgmType *pmg){
   return NOT_FOUND;
 }
 
-// Find operands with LABEL_NOT_FND after all user input and modifies the operand if a
-//   matching label can be found in the collection of stmts
+// Finds operands with LABEL_NOT_FND after all user input and modifies the operand if a matching label can be found in the collection of stmts
 void resolveLabels(PgmType *pgm){
   int i;
   
