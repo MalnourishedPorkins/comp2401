@@ -1,8 +1,0 @@
-read a
-read b
-comp a b
-jmore L1
-print b
-jump L2
-L1: print a
-L2: end
