@@ -4,15 +4,18 @@
 
 #define MAX_STR      32
 #define MAX_ARR_SIZE 32
-#define VAR_NOT_FOUND -1
+#define NOT_FOUND -1
 
 void initPgm(PgmType*);
 void initStmt(char*, InstrCategory, OperandType, OperandType, StmtType*);
 void initOperand(OpCategory, int, int, char*, OperandType*);
 void initOperandVar(OpCategory, int, OperandType*);
+void initOperandLabel(OpCategory, int, OperandType*);
 void operandNotUsed(OperandType*);
+void operandLabelNotFnd(char*, OperandType*);
 void initVar(char*, int, VarType*);
 int findVar(char*, PgmType*);
+int findLabel(char*, PgmType*);
 
 int main(){
   PgmType pgm;
@@ -67,7 +70,7 @@ int main(){
       
       index = findVar(str, &pgm);
       OperandType opA, opB; // Initalize Operands for the statement
-      if(index >= 0){
+      if(index != NOT_FOUND){
 	initOperandVar(VAR, index, &opA);
 	operandNotUsed(&opB);
       } 
@@ -89,14 +92,14 @@ int main(){
       int index1; int index2; char var1[MAX_STR]; char var2[MAX_STR];
       scanf("%s", str);
       strcpy(var1, str);
-      printf("%s\n", var1);
+      // printf("%s\n", var1);
 
       scanf("%s", str);
       strcpy(var2, str);
 
       index1 = findVar(var1, &pgm); index2 = findVar(var2, &pgm);
       OperandType opA, opB; // Initalize Operands for the statement
-      if(index1 >= 0 && index2 >=0){
+      if(index1 != NOT_FOUND && index2 != NOT_FOUND){
 	initOperandVar(VAR, index1, &opA);
 	initOperandVar(VAR, index2, &opB);
       } 
@@ -107,7 +110,32 @@ int main(){
       currentStmt.op1 = opA; currentStmt.op2 = opB; // Add operands to statement
       pgm.stmts[pgm.numStmts] = currentStmt; // Add statement to program collection of stmts
       pgm.numStmts++; // Increment stmts value inside program structure
-    }      
+    }
+    
+    // JMORE instruction condition
+    //-----------------------------
+    if(strcmp(str, "jmore") == 0){
+      currentStmt.instr = JMORE;
+      strCounter++;
+
+      int index;
+      scanf("%s", str);
+      index = findLabel(str, &pgm);
+      printf("index: %d label: %s\n", index, str);
+
+      OperandType opA, opB; // Initalize Operands for the statement
+      if(index != NOT_FOUND){
+	initOperandLabel(LABEL, index, &opA);
+	operandNotUsed(&opB);
+      } 
+      else{
+	operandLabelNotFnd(str, &opA);
+	operandNotUsed(&opB);
+      }
+      currentStmt.op1 = opA; currentStmt.op2 = opB; // Add operands to statement
+      pgm.stmts[pgm.numStmts] = currentStmt; // Add statement to program collection of stmts
+      pgm.numStmts++; // Increment stmts value inside program structure
+    }
     
     // TODO: jmore instructions, jump instructions, end instruction, resolve labels
     
@@ -116,26 +144,6 @@ int main(){
        break;
 
   }
-  /*
-  VarType var;
-  int v = 20;
-  initVar("a", v, &var);
-  pgm.vars[pgm.numVars] = var; pgm.numVars++;
-
-  OperandType opA; OperandType opB;
-  OpCategory opCat = VAR; OpCategory opCatB = NOT_USED;
-  initOperand(opCat, -1, 0, "", &opA);
-  initOperand(opCatB, -1, -1, "", &opB);
-  
-  StmtType stmt;
-  initStmt("", READ, opA, opB, &stmt);
-  pgm.stmts[pgm.numStmts] = stmt; pgm.numStmts++;
-  
-  printPgm(&pgm);
-  */
-  //int index;
-  //index = findVar("c", &pgm);
-  //printf("Index: %d\n", index);
 
   printPgm(&pgm);
   return 0;
@@ -165,8 +173,19 @@ void initOperandVar(OpCategory opT, int varIndex, OperandType *op){
   op->var = varIndex;
 }
 
+void initOperandLabel(OpCategory opT, int labelIndex, OperandType *op){
+  op->opType = opT;
+  op->label = labelIndex;
+}
+
 void operandNotUsed(OperandType *op){
   op->opType = NOT_USED;
+}
+
+void operandLabelNotFnd(char *label, OperandType *op){
+  //printf("inside! %s", label);
+  op->opType = LABEL_NOT_FND;
+  strcpy(op->tmpLabel, label);
 }
 
 void initVar(char *n, int v, VarType *var){
@@ -184,5 +203,18 @@ int findVar(char *n, PgmType *pmg){
     if(strcmp(n, pmg->vars[i].name) == 0)
       return i;
   }
-  return VAR_NOT_FOUND;
+  return NOT_FOUND;
+}
+
+// Returns index of stmt using inputted label if found
+int findLabel(char *l, PgmType *pmg){
+  int i;
+
+  for(i = 0; i < pmg->numStmts; i++){
+    //printf("|%s == %s|\n", n, pmg->stmts[i].label);
+    
+    if(strcmp(l, pmg->stmts[i].label) == 0)
+      return i;
+  }
+  return NOT_FOUND;
 }

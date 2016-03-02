@@ -51,7 +51,7 @@ void printPgmStmts(PgmType *pgmPtr)
       case NOT_USED:
         printf("-- type NOT_USED");
       case LABEL_NOT_FND:
-	printf("-- type LABEL_NOT_FND");	
+	printf("-- type LABEL_NOT_FND, name %s", pgmPtr->stmts[stmtIndex].op1.tmpLabel);	
     }
     printf("\n");
 
